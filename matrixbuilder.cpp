@@ -370,21 +370,61 @@ static PyMethodDef module_methods[] = {
 #ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
+
+#if PY_MAJOR_VERSION >= 3
+static int matrixbuilder7_traverse(PyObject *m, visitproc visit, void *arg) {
+    return 0;
+}
+
+static int matrixbuilder7_clear(PyObject *m) {
+    return 0;
+}
+
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "matrixbuilder7",
+    NULL,
+    0,
+    module_methods,
+    NULL,
+    matrixbuilder7_traverse,
+    matrixbuilder7_clear,
+    NULL
+};
+
+PyMODINIT_FUNC PyInit_matrixbuilder7(void) {
+
+#else
+
 PyMODINIT_FUNC initmatrixbuilder7(void) {
-    PyObject *m;
+
+#endif
+    PyObject *m = NULL;
     
     if (PyType_Ready(&writer_obj) < 0)
-        return;
+        goto END;
     if (PyType_Ready(&reader_obj) < 0)
-        return;
+        goto END;
 
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&moduledef);
+#else
     m = Py_InitModule3("matrixbuilder7", module_methods, "matrix builder module v1.0");
+#endif
 
     if (m == NULL)
-        return;
+        goto END;
 
     Py_INCREF(&writer_obj);
     PyModule_AddObject(m, "writer", (PyObject *)&writer_obj);
     Py_INCREF(&reader_obj);
     PyModule_AddObject(m, "reader", (PyObject *)&reader_obj);
+
+END:
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#else
+    return;
+#endif
 }
+
